@@ -1,16 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
 
 import './Company.sol';
 import './Government.sol';
-import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract VRS{
     Company company;
     Government government;
 
-    using Counters for Counters.Counter;
-    Counters.Counter private ID;
+    uint256 private INDEX;
 
     struct Vehicle {
         string vehicleNumber;
@@ -52,13 +50,12 @@ contract VRS{
 
     // for a company to register new variant
     function registerNewVhecile(string calldata metadata, string calldata chassis_number) external onlyCompany{
-        // make this function called by only company
-        // add company reference to vehicle who launched 
-        ID.increment();
-        uint256 id = ID.current();
+        uint256 id = INDEX;
         vehicles[id] = Vehicle('', metadata, chassis_number, msg.sender, address(0), '');
 
         emit VehicleRegistered(id, msg.sender, chassis_number, metadata, address(0) );
+
+        INDEX++;
     }
 
     // this method is for company and user to creat an offer for buyer
@@ -82,13 +79,13 @@ contract VRS{
     // this method is for buyers to accept the offer and own the vehicle in very next second
     function acceptOffer(uint256 vehicleId, string calldata metadata, uint256 amount) payable external {
         Offer offer = sellerOffer[vehicleId];
-        require(offer.tillTime > block.timestamp; 'VRS: Offer expired.');
+        require(offer.tillTime > block.timestamp, 'VRS: Offer expired.');
         require(offer.buyer == msg.sender, 'VRS: In valid address');
         require(amount == offer.price, 'VRS: Amount sent is icorrect');
 
         address seller = offer.seller
+        bool success = seller.send(amount);
 
-        (bool sent, ) = payable(seller).call{value: amount}("");
         require(sent, 'VRS: Amount could not be sent to the seller.');
 
         Vehicle storage vehicle = vehicles[vehicleId];
