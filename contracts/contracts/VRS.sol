@@ -34,9 +34,9 @@ contract VRS{
 
     uint256 public registrationFee;
 
-    event VehicleRegistered(uint256 vehicleId, string company, string vehicleChassisNumber, string vehicleMetadata, address owner);
+    event VehicleRegistered(uint256 vehicleId, address company, string vehicleChassisNumber, string vehicleMetadata, address owner);
     event SellerOffer(uint256 vehicleId,  address seller, address buyer, uint256 price, uint256 tillTime);
-    event TransferFrom(uint256 vehicleId,  address from, address to, string vehicleNumber, string vehicleChassisNumber, string company);
+    event TransferFrom(uint256 vehicleId,  address from, address to, string vehicleNumber, string vehicleChassisNumber, address company);
 
     constructor(address _company, address _government){
         company = Company(_company);
@@ -78,31 +78,35 @@ contract VRS{
 
     // this method is for buyers to accept the offer and own the vehicle in very next second
     function acceptOffer(uint256 vehicleId, string calldata metadata, uint256 amount) payable external {
-        Offer offer = sellerOffer[vehicleId];
+        Offer memory offer = sellerOffer[vehicleId];
         require(offer.tillTime > block.timestamp, 'VRS: Offer expired.');
         require(offer.buyer == msg.sender, 'VRS: In valid address');
         require(amount == offer.price, 'VRS: Amount sent is icorrect');
 
-        address seller = offer.seller
-        bool success = seller.send(amount);
-
+        address seller = offer.seller;
+        (bool sent, ) = seller.call{value: amount}("");
         require(sent, 'VRS: Amount could not be sent to the seller.');
 
         Vehicle storage vehicle = vehicles[vehicleId];
         if(vehicle.currentOwner == address(0)){
-            string memory vehicleNumber = genrateRandomRegistrationString();
+            // string memory vehicleNumber = genrateRandomRegistrationString();
+            string memory vehicleNumber = '';
             vehicle.vehicleNumber = vehicleNumber;
         }
 
         vehicle.currentOwner = msg.sender;
-        vehicle.currentOwnerMetadata = msg.sender;
+        vehicle.currentOwnerMetadata = metadata;
 
         emit TransferFrom(vehicleId, seller, msg.sender, vehicle.vehicleNumber, vehicle.vehicleChassisNumber, vehicle.vehicleCompany);
 
         delete sellerOffer[vehicleId];
     }
 
-    function genrateRandomRegistrationString() internal returns(string){
-        return '';
+    // function genrateRandomRegistrationString() internal returns(string memory){
+    //     return '';
+    // }
+
+
+    receive() external payable {
     }
 }

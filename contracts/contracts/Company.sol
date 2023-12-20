@@ -15,7 +15,7 @@ contract Company{
 
     // this mapping is kept private form users, because comapnies which are not approved should be hidden from users
     mapping(uint256 => CompanyStruct) private companies;
-    mapping(uint256 => bool) private isCompanyApproved;
+    mapping(address => bool) public isCompanyApproved;
 
     Government government;
 
@@ -38,20 +38,23 @@ contract Company{
 
     // for government to approve comapany
     function approveCompany(uint256 _index) external onlyGovernmentAuthorized{
-        require(!isCompanyApproved[_index], "VRS: Company already approved");
-        isCompanyApproved[_index] = true;
+        CompanyStruct memory company = companies[_index];
+        require(!isCompanyApproved[company.account], "VRS: Company already approved");
+        isCompanyApproved[company.account] = true;
     }
 
 
     // for government to revoke approval
     function revokeApproval(uint256 _index) external onlyGovernmentAuthorized{
-        require(isCompanyApproved[_index], "VRS: Company not approved");
-        isCompanyApproved[_index] = false;
+        CompanyStruct memory company = companies[_index];
+        require(isCompanyApproved[company.account], "VRS: Company not approved");
+        isCompanyApproved[company.account] = false;
     }
 
     // anyone to get company data
     function getCompany(uint256 _index) external view returns(CompanyStruct memory){
-        require(isCompanyApproved[_index], "VRS: Company not approved or does not exist");
+        CompanyStruct memory company = companies[_index];
+        require(isCompanyApproved[company.account], "VRS: Company not approved or does not exist");
         return companies[_index];
     }
 
@@ -67,7 +70,7 @@ contract Company{
         uint256[] memory unapprovedIndexes = new uint256[](unapprovedCount);
 
         for (uint256 i = 0; i < currentIndex; i++) {
-            if (isCompanyApproved[i]) {
+            if (isCompanyApproved[companies[i].account]) {
                 approvedIndexes[approvedCount++] = i;
             } else {
                 unapprovedIndexes[unapprovedCount++] = i;
