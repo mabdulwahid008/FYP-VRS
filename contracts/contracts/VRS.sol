@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import './Company.sol';
 import './Government.sol';
+import '@openzeppelin/contracts/utils/Strings.sol';
 
 contract VRS{
     Company company;
@@ -102,9 +103,14 @@ contract VRS{
         delete sellerOffer[vehicleId];
     }
 
-    // function genrateRandomRegistrationString() internal returns(string memory){
-    //     return '';
-    // }
+    function genrateRandomRegistrationString() private returns(string memory){
+
+        uint256 randomNumber = uint256(keccak256(abi.encodePacked(block.timestamp, block.difficulty))) % 10000;
+
+        string memory number = string.concat('PAK', Strings.toString(randomNumber));
+
+        return number;
+    }
 
 
     receive() external payable {
