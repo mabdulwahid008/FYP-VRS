@@ -17,18 +17,24 @@ contract Company{
     mapping(uint256 => CompanyStruct) private companies;
     mapping(address => bool) public isCompanyApproved;
 
+    event Register(uint256 index, address account, string name, uint256 timestamp);
+    event Approved(uint256 index, address account, string name, uint256 timestamp);
+    event revokedApprovel(uint256 index, address account, string name, uint256 timestamp);
+
     Government government;
 
     constructor(address _govenment){
         government = Government(_govenment);
     }
 
-
     // for anyone to register their comapnies
     function registerCompany(string calldata _name, string calldata _metadata) external {
         uint256 currentIndex = INDEX;
         companies[currentIndex] =  CompanyStruct(msg.sender, _name, _metadata);
+
+        emit Register(currentIndex, msg.sender, _name, block.timestamp);
         INDEX++;
+
     }
 
     modifier onlyGovernmentAuthorized() {
@@ -41,6 +47,8 @@ contract Company{
         CompanyStruct memory company = companies[_index];
         require(!isCompanyApproved[company.account], "VRS: Company already approved");
         isCompanyApproved[company.account] = true;
+
+        emit Approved(_index, company.account, company.name, block.timestamp);
     }
 
 
@@ -49,6 +57,8 @@ contract Company{
         CompanyStruct memory company = companies[_index];
         require(isCompanyApproved[company.account], "VRS: Company not approved");
         isCompanyApproved[company.account] = false;
+
+        emit revokedApprovel(_index, company.account, company.name, block.timestamp);
     }
 
     // anyone to get company data

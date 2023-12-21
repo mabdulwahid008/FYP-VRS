@@ -1,0 +1,30 @@
+* {
+    padding: 0px;
+    margin: 0px;
+}
+
+.css-1d4s0we{
+    gap: 0px !important;
+}
+.css-xl1iz5{
+    padding: 7px 12px !important;
+    min-width: 140px !important;
+}
+
+.header-animate{
+    animation: myAnim 1s ease 0s 1 normal forwards;
+}
+
+@keyframes myAnim {
+	0% {
+		opacity: 0;
+		transform: rotateX(70deg);
+		transform-origin: top;
+	}
+
+	100% {
+		opacity: 1;
+		transform: rotateX(0deg);
+		transform-origin: top;
+	}
+}

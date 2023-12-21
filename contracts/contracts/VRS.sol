@@ -90,8 +90,7 @@ contract VRS{
 
         Vehicle storage vehicle = vehicles[vehicleId];
         if(vehicle.currentOwner == address(0)){
-            // string memory vehicleNumber = genrateRandomRegistrationString();
-            string memory vehicleNumber = '';
+            string memory vehicleNumber = genrateRandomRegistrationString();
             vehicle.vehicleNumber = vehicleNumber;
         }
 
@@ -103,9 +102,9 @@ contract VRS{
         delete sellerOffer[vehicleId];
     }
 
-    function genrateRandomRegistrationString() private returns(string memory){
+    function genrateRandomRegistrationString() private view returns(string memory){
 
-        uint256 randomNumber = uint256(keccak256(abi.encodePacked(block.timestamp, block.difficulty))) % 10000;
+        uint256 randomNumber = uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao))) % 10000;
 
         string memory number = string.concat('PAK', Strings.toString(randomNumber));
 
