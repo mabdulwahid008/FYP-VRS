@@ -13,9 +13,11 @@ function Provider(props) {
         if(window.location.pathname.startsWith('/company')){
           navigate('/company/register')
         }
-        else if(window.location.pathname.startsWith('/government')){}
+        else if(window.location.pathname.startsWith('/government')){
+          navigate('/about')
+        }
         else{
-
+          // navigate('/dashboard')
         }
     }
   }, [address])
