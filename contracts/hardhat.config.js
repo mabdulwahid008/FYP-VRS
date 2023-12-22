@@ -4,8 +4,8 @@ require("dotenv").config()
 module.exports = {
   solidity: "0.8.20",
   networks: {
-    ArbitrumSepolia : {
-      url: process.env.ARBITRIUM,
+    sepolia : {
+      url: process.env.NODE_URL,
       accounts: [process.env.PRIVATE_KEY]
     }
   },

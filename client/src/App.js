@@ -4,6 +4,7 @@ import './App.css'
 import { Outlet, Route, Routes } from 'react-router-dom'
 import Provider from './state/Provider';
 import CompanyRegister from './pages/CompanyRegister';
+import CompanyWaiting from './pages/CompanyWaiting';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path='company' element={<Outlet />}>
           <Route index element={<Landing />} />
           <Route path='register' element={<CompanyRegister />} />
+          <Route path='waiting' element={<CompanyWaiting />} />
         </Route>
 
         <Route path='government' element={<Landing />} />

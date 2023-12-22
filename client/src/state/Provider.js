@@ -1,29 +1,66 @@
-import { useAddress } from '@thirdweb-dev/react'
+import { useAddress, useContract, useContractRead } from '@thirdweb-dev/react'
 import React, { createContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { COMPANY_ABI, COMPANY_ADDRESS } from '../constants'
 
 export const Context = createContext()
 
 function Provider(props) {
   const address = useAddress()
   const navigate = useNavigate()
+  const companyContract = useContract(COMPANY_ADDRESS, COMPANY_ABI);
+
+  const [pendingCompany, setPendingCompany] = useState(null)
+
+  const isCompanyRegistered = async() => {
+    const events = await companyContract?.contract?.events.getAllEvents({
+      eventName: "Register",
+    })
+
+    const company = events?.filter((e) => e.data.account === address)
+    if(company?.length !== 0){
+      setPendingCompany(company[0].data.name);
+      return true
+    }
+    return false
+  }
+
+  const isCompanyApproved = async() => {
+    const check = await companyContract?.contract?.call('isCompanyApproved', [address])
+    if(check === true)
+      return true
+    return false
+  }
+
+  const handleNavigations = async() => {
+    if(window.location.pathname.startsWith('/company')){
+        const registered = await isCompanyRegistered()
+        if(registered){
+          const approved = await isCompanyApproved()
+          if(approved)
+            navigate('/company/dashboard')
+          else
+            navigate('/company/waiting')
+        }
+        else
+          navigate('/company/register')
+    }
+    else if(window.location.pathname.startsWith('/government')){
+      navigate('/about')
+    }
+    else{
+      // navigate('/dashboard')
+    }
+  }
 
   useEffect(()=>{
     if(address){
-        if(window.location.pathname.startsWith('/company')){
-          navigate('/company/register')
-        }
-        else if(window.location.pathname.startsWith('/government')){
-          navigate('/about')
-        }
-        else{
-          // navigate('/dashboard')
-        }
+      handleNavigations()
     }
   }, [address])
 
     const contextValues = {
-
+      pendingCompany,
     }
   return (
     <Context.Provider value={contextValues}>

@@ -4,6 +4,7 @@ import App from "./App";
 import "./index.css";
 import { ThirdwebProvider } from "@thirdweb-dev/react";
 import { BrowserRouter } from "react-router-dom";
+import { Sepolia } from "@thirdweb-dev/chains";
 
 const activeChain = "ethereum";
 
@@ -12,7 +13,7 @@ const root = createRoot(container);
 root.render(
   <BrowserRouter>
     <ThirdwebProvider
-      activeChain={activeChain}
+      activeChain={Sepolia}
       clientId={process.env.REACT_APP_TEMPLATE_CLIENT_ID}
     >
       <App />
