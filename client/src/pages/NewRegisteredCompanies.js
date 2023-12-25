@@ -1,9 +1,12 @@
 import { useContract } from '@thirdweb-dev/react'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { COMPANY_ABI, COMPANY_ADDRESS } from '../constants'
 import { minifyAddress } from '../utills'
+import { Link } from 'react-router-dom'
+import { Context } from '../state/Provider';
 
 function NewRegisteredCompanies() {
+    const { setLoadingPage } = useContext(Context)
     const { contract } = useContract(COMPANY_ADDRESS, COMPANY_ABI)
     const [companies, setCompanies] = useState(null)
 
@@ -18,11 +21,12 @@ function NewRegisteredCompanies() {
             if(!notApproved)
                 newregistrations.push(events[i]?.data)
         }
-
-          setCompanies(newregistrations)
+        setCompanies(newregistrations)
+        setLoadingPage(false)
     }
     
     useEffect(()=>{
+        setLoadingPage(true)
         fetchCompanies()
     }, [contract])
   return (
@@ -42,12 +46,12 @@ function NewRegisteredCompanies() {
                 </thead>
                 <tbody>
                     {companies?.map((comp, index)=>{
-                         return <tr className='border-b-[1px] border-gray-200'>
+                         return <tr className='border-b-[1px] border-gray-200' key={index}>
                                     <td className='text-gray-700 font-normal w-[50px] text-left py-2 text-sm'>{index+1}</td>
                                     <td className='text-gray-700 font-normal w-[30%] text-left text-sm'>{comp.name}</td>
                                     <td className='text-gray-700 font-normal w-[30%] text-left text-sm'>{minifyAddress(comp.account)}</td>
                                     <td className='text-gray-700 font-normal text-left text-sm'>{new Date(comp.timestamp * 1000).toDateString()}</td>
-                                    <td className='text-gray-700 font-normal text-left text-sm'>Details</td>
+                                    <td className='text-gray-700 font-normal text-left text-sm'><Link to={comp.index.toString()}>Details</Link></td>
                             </tr>
                     })}
                 </tbody>

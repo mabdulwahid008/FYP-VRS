@@ -14,7 +14,7 @@ contract Company{
     uint256 private INDEX;
 
     // this mapping is kept private form users, because comapnies which are not approved should be hidden from users
-    mapping(uint256 => CompanyStruct) private companies;
+    mapping(uint256 => CompanyStruct) public companies;
     mapping(address => bool) public isCompanyApproved;
 
     event Register(uint256 index, address account, string name, uint256 timestamp);

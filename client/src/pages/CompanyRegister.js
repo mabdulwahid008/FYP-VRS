@@ -33,6 +33,7 @@ function CompanyRegister() {
             await mutateAsync({
                 args: [companyData.name, cid],
               })
+            navigate('/company/waiting')
         } catch (error) {
             console.error(error);
         }

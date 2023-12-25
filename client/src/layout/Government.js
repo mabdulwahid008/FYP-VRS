@@ -1,5 +1,5 @@
-import React from 'react'
-import { NavLink, Route, Routes, useNavigate } from 'react-router-dom'
+import React, { useContext } from 'react'
+import { NavLink, Outlet, Route, Routes, useNavigate } from 'react-router-dom'
 import { IoHome } from "react-icons/io5";
 import { FaWpforms } from "react-icons/fa";
 import { FaCheckSquare } from "react-icons/fa";
@@ -7,8 +7,12 @@ import GDashboard from '../pages/GDashboard';
 import { CiLogout } from "react-icons/ci";
 import NewRegisteredCompanies from '../pages/NewRegisteredCompanies';
 import { useDisconnect } from '@thirdweb-dev/react';
+import CompanyDetails from '../pages/CompanyDetails';
+import Loading from '../pages/Loading';
+import { Context } from '../state/Provider';
 
 function Government() {
+  const { loadingPage } = useContext(Context)
   const disconnect = useDisconnect()
     const navigate = useNavigate()
     const goBack = () => {
@@ -26,11 +30,17 @@ function Government() {
             </nav>
             <button onClick={goBack} className='bg-black py-2 text-sm text-white w-[129%] -ml-8 flex justify-start items-center gap-2 px-20'><CiLogout className='text-xl'/>Log Out</button>
       </div>
-      <div className='ml-[20%] w-[80%] px-10 py-8 h-screen'>
-        <Routes>
-          <Route path='dashboard' element={<GDashboard />}/>
-          <Route path='company-applications' element={<NewRegisteredCompanies />}/>
-        </Routes>
+      <div className='ml-[20%] w-[80%]'>
+        <div className='px-10 py-8 h-screen'>
+          <Routes>
+            <Route path='dashboard' element={<GDashboard />}/>
+            <Route path='company-applications' element={<Outlet />}>
+                <Route index element={<NewRegisteredCompanies />} />
+                <Route path=':id' element={<CompanyDetails />} />
+            </Route>
+          </Routes>
+        </div>
+        {loadingPage && <Loading />}
       </div>
     </div>
   )

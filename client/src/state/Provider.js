@@ -1,7 +1,8 @@
 import { useAddress, useContract, useContractRead } from '@thirdweb-dev/react'
 import React, { createContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { COMPANY_ABI, COMPANY_ADDRESS } from '../constants'
+import { COMPANY_ABI, COMPANY_ADDRESS, GOV_ABI, GOV_ADDRESS } from '../constants'
+import { toast } from 'react-toastify'
 
 export const Context = createContext()
 
@@ -9,14 +10,17 @@ function Provider(props) {
   const address = useAddress()
   const navigate = useNavigate()
   const companyContract = useContract(COMPANY_ADDRESS, COMPANY_ABI);
+  const govContract = useContract(GOV_ADDRESS, GOV_ABI);
 
   const [pendingCompany, setPendingCompany] = useState(null)
+
+  const [loadingPage, setLoadingPage] = useState(false)
 
   const isCompanyRegistered = async() => {
     const events = await companyContract?.contract?.events.getAllEvents({
       eventName: "Register",
     })
-    const company = events?.filter((e) => e.data.account === address)
+    const company = events?.filter((e) => e.data.account.toLowerCase() === address.toLowerCase())
     if(company && company?.length !== 0){
       setPendingCompany(company[0].data.name);
       return true
@@ -46,7 +50,13 @@ function Provider(props) {
     }
 
     else if(window.location.pathname.startsWith('/government')){
-      navigate('/government/dashboard')
+      const check = await govContract?.contract?.call('isAuthorized', [address])
+      if(check)
+        navigate('/government/dashboard')
+      else{
+        navigate('/government')
+        toast.error('You are not authorized.')
+      }
     }
     else{
       // navigate('/dashboard')
@@ -61,6 +71,7 @@ function Provider(props) {
 
     const contextValues = {
       pendingCompany,
+      loadingPage, setLoadingPage
     }
   return (
     <Context.Provider value={contextValues}>

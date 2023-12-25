@@ -6,6 +6,8 @@ import Provider from './state/Provider';
 import CompanyRegister from './pages/CompanyRegister';
 import CompanyWaiting from './pages/CompanyWaiting';
 import Government from './layout/Government';
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
@@ -25,6 +27,7 @@ function App() {
         </Route>
 
       </Routes>
+      <ToastContainer position="top-center" autoClose={5000} hideProgressBar newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable={false} pauseOnHover theme="light" />
     </Provider>
   )
 }
