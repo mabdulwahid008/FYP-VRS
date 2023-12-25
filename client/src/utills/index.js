@@ -18,3 +18,11 @@ export const uploadToIPFS = async(data) => {
     else
         console.log(res);
 }
+
+
+export const minifyAddress = (address) => {
+    const start = address.substr(0, 6)
+    const mid = address.substr(8, 15)
+    const end = address.substr(address.length - 4)
+    return `${start}...${mid}...${end}`
+}

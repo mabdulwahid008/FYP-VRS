@@ -19,6 +19,11 @@
     animation: myAnim 1s ease 0s 1 normal forwards;
 }
 
+.active{
+	color: white !important;
+	font-weight: 700 !important;
+}
+
 @keyframes myAnim {
 	0% {
 		opacity: 0;

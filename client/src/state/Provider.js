@@ -16,9 +16,8 @@ function Provider(props) {
     const events = await companyContract?.contract?.events.getAllEvents({
       eventName: "Register",
     })
-
     const company = events?.filter((e) => e.data.account === address)
-    if(company?.length !== 0){
+    if(company && company?.length !== 0){
       setPendingCompany(company[0].data.name);
       return true
     }
@@ -45,8 +44,9 @@ function Provider(props) {
         else
           navigate('/company/register')
     }
+
     else if(window.location.pathname.startsWith('/government')){
-      navigate('/about')
+      navigate('/government/dashboard')
     }
     else{
       // navigate('/dashboard')

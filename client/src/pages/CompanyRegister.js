@@ -28,10 +28,14 @@ function CompanyRegister() {
     const registerCompany = async(e) =>{
         e.preventDefault()
         setLoading(true)
-        const cid = await uploadToIPFS(companyData)
-        await mutateAsync({
-            args: [companyData.name, cid],
-          })
+        try {
+            const cid = await uploadToIPFS(companyData)
+            await mutateAsync({
+                args: [companyData.name, cid],
+              })
+        } catch (error) {
+            console.error(error);
+        }
         setLoading(false)
     }
   return (
