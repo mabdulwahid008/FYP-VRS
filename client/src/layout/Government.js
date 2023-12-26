@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { NavLink, Outlet, Route, Routes, useNavigate } from 'react-router-dom'
 import { IoHome } from "react-icons/io5";
 import { FaWpforms } from "react-icons/fa";
@@ -6,7 +6,7 @@ import { FaCheckSquare } from "react-icons/fa";
 import GDashboard from '../pages/GDashboard';
 import { CiLogout } from "react-icons/ci";
 import NewRegisteredCompanies from '../pages/NewRegisteredCompanies';
-import { useDisconnect } from '@thirdweb-dev/react';
+import { useAddress, useDisconnect } from '@thirdweb-dev/react';
 import CompanyDetails from '../pages/CompanyDetails';
 import Loading from '../pages/Loading';
 import { Context } from '../state/Provider';
@@ -14,12 +14,17 @@ import ApprovedComapnies from '../pages/ApprovedComapnies';
 
 function Government() {
   const { loadingPage } = useContext(Context)
+  const address = useAddress()
   const disconnect = useDisconnect()
     const navigate = useNavigate()
     const goBack = () => {
         disconnect()
         navigate('/government')
     }
+    useEffect(()=>{
+      if(!address)
+        navigate('/government')
+    }, [])
   return (
     <div className='flex bg-[#E5E5E5] w-full'>
       <div className='flex bg-[#3c3c3c] w-[20%] h-screen shadow-3xl fixed top-0 left-0 px-8 pt-[50px] flex-col justify-between items-start overflow-hidden'>

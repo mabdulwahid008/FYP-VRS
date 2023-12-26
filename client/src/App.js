@@ -1,15 +1,17 @@
 import React from 'react'
 import Landing from './pages/Landing'
 import './App.css'
-import { Outlet, Route, Routes } from 'react-router-dom'
+import { Outlet, Route, Routes, redirect  } from 'react-router-dom'
 import Provider from './state/Provider';
 import CompanyRegister from './pages/CompanyRegister';
 import CompanyWaiting from './pages/CompanyWaiting';
 import Government from './layout/Government';
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { useAddress } from '@thirdweb-dev/react';
 
 function App() {
+  const address = useAddress()
   return (
     <Provider>
       <Routes>
@@ -23,7 +25,7 @@ function App() {
 
         <Route path='government' element={<Outlet />}>
           <Route index element={<Landing />} />
-          <Route path='*' element={<Government/>} />
+          <Route path='*' element={<Government/> } />
         </Route>
 
       </Routes>
