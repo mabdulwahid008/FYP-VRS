@@ -78,7 +78,7 @@ function CompanyRegister() {
             </div>
             <div className='flex flex-col gap-2'>
                 <label className='text-sm text-black font-semibold'>Comapny's Profile</label>
-                <textarea className='resize-none h-[70px] rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-500' required type='text' name='headquarters' placeholder="Introduce company profile" onChange={onChange}></textarea>
+                <textarea className='resize-none h-[70px] rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-500' required type='text' name='desc' placeholder="Introduce company profile" onChange={onChange}></textarea>
             </div>
             <button className='bg-gray-700 rounded-md shadow-sm cursor-pointer py-2 px-10 text-white text-sm font-semibold w-[45%] transition-colors hover:bg-black disabled:bg-gray-500 disabled:cursor-wait' disabled={loading}>Register Company</button>
         </form>

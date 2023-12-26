@@ -1,13 +1,14 @@
-import { useAddress, useContract, useContractRead } from '@thirdweb-dev/react'
+import { useAddress, useContract, useDisconnect } from '@thirdweb-dev/react'
 import React, { createContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COMPANY_ABI, COMPANY_ADDRESS, GOV_ABI, GOV_ADDRESS } from '../constants'
-import { toast } from 'react-toastify'
 
 export const Context = createContext()
 
 function Provider(props) {
   const address = useAddress()
+  
+  const disonnect = useDisconnect()
   const navigate = useNavigate()
   const companyContract = useContract(COMPANY_ADDRESS, COMPANY_ABI);
   const govContract = useContract(GOV_ADDRESS, GOV_ABI);
@@ -54,8 +55,8 @@ function Provider(props) {
       if(check)
         navigate('/government/dashboard')
       else{
+        // disonnect()
         navigate('/government')
-        toast.error('You are not authorized.')
       }
     }
     else{
@@ -64,7 +65,7 @@ function Provider(props) {
   }
 
   useEffect(()=>{
-    if(address){
+    if(address && govContract?.contract && companyContract?.contract){
       handleNavigations()
     }
   }, [address])

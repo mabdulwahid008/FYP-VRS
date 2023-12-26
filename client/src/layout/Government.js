@@ -10,6 +10,7 @@ import { useDisconnect } from '@thirdweb-dev/react';
 import CompanyDetails from '../pages/CompanyDetails';
 import Loading from '../pages/Loading';
 import { Context } from '../state/Provider';
+import ApprovedComapnies from '../pages/ApprovedComapnies';
 
 function Government() {
   const { loadingPage } = useContext(Context)
@@ -36,6 +37,10 @@ function Government() {
             <Route path='dashboard' element={<GDashboard />}/>
             <Route path='company-applications' element={<Outlet />}>
                 <Route index element={<NewRegisteredCompanies />} />
+                <Route path=':id' element={<CompanyDetails />} />
+            </Route>
+            <Route path='approved-companies' element={<Outlet />}>
+                <Route index element={<ApprovedComapnies />} />
                 <Route path=':id' element={<CompanyDetails />} />
             </Route>
           </Routes>
