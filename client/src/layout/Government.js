@@ -28,7 +28,7 @@ function Government() {
   return (
     <div className='flex bg-[#E5E5E5] w-full'>
       <div className='flex bg-[#3c3c3c] w-[20%] h-screen shadow-3xl fixed top-0 left-0 px-8 pt-[50px] flex-col justify-between items-start overflow-hidden'>
-            <h1 className='text-white font-bold text-left text-xl leading-[20px]'>Vehicle Registration System</h1>
+            <h1 className='text-white font-bold text-left pl-4 text-[50px] leading-[20px]'>VRS</h1>
             <nav className='flex flex-col gap-4 justify-start items-start -mt-[400px]'>
                 <NavLink to='/government/dashboard' className='text-gray-300 text-sm cursor-pointer flex justify-center items-center gap-2'><IoHome  className='text-2xl'/> Dashboard</NavLink>
                 <NavLink to='/government/company-applications' className='text-gray-300 text-sm cursor-pointer flex justify-center items-start gap-2'><FaWpforms className='text-xl'/> Company Applications</NavLink>
