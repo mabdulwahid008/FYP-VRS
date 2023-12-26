@@ -24,11 +24,15 @@ function CompanyDetails() {
                 const check = await contract?.call('isCompanyApproved', [data?.account])
                 console.log(check);
                 res.isApproved = check
-                setCompanyDetails(res)
                 setLoadingPage(false)
+                setCompanyDetails(res)
         } catch (error) {
             console.error(error);
         }
+    }
+
+    const revokeApproval = async() => {
+        setLoading(true)
     }
 
     const approveComp = async() => {
@@ -56,7 +60,7 @@ function CompanyDetails() {
             <h1 className='font-medium text-left text-2xl text-gray-700'>Company Details</h1>
             <a href={`https://gateway.pinata.cloud/ipfs/${data?.metadata}`} rel="noreferrer" target='_blank' className='text-base underline text-black cursor-pointer'>View on IPFS</a>
         </div>
-        <div className='bg-white rounded-xl shadow-md w-full px-5 py-5'>
+       {CompanyDetails && <div className='bg-white rounded-xl shadow-md w-full px-5 py-5 header-animate'>
         <div className='w-full flex flex-col items-end  gap-4' >
             <div className='flex justify-between items-start gap-3 w-full'>
                 <div className='flex flex-col gap-2 w-[50%]'>
@@ -98,12 +102,12 @@ function CompanyDetails() {
                 <textarea className='resize-none h-[70px] rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-300' value={CompanyDetails?.desc} readOnly></textarea>
             </div>
            {CompanyDetails?.isApproved ? 
-                <button className='bg-gray-700 rounded-md shadow-sm cursor-pointer py-2 px-10 text-white text-sm font-semibold w-[45%] transition-colors hover:bg-black disabled:bg-gray-500 disabled:cursor-wait' disabled={loading} onClick={approveComp}>Revoke Approval</button>
+                <button className='bg-red-400 rounded-md shadow-sm cursor-pointer py-2 px-10 text-white text-sm font-semibold w-[45%] transition-colors hover:bg-red-500 disabled:bg-red-300 disabled:cursor-wait' disabled={loading} onClick={revokeApproval}>Revoke Approval</button>
                 :
-                <button className='bg-gray-700 rounded-md shadow-sm cursor-pointer py-2 px-10 text-white text-sm font-semibold w-[45%] transition-colors hover:bg-black disabled:bg-gray-500 disabled:cursor-wait' disabled={loading} onClick={approveComp}>Approve Company</button>
+                <button className='bg-green-400 rounded-md shadow-sm cursor-pointer py-2 px-10 text-white text-sm font-semibold w-[45%] transition-colors hover:bg-green-500 disabled:bg-green-300 disabled:cursor-wait' disabled={loading} onClick={approveComp}>Approve Company</button>
            }
             </div>
-        </div>
+        </div>}
     </div>
   )
 }

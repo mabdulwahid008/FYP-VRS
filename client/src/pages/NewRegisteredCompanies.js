@@ -30,7 +30,7 @@ function NewRegisteredCompanies() {
   return (
     <div className='flex flex-col gap-5 items-start justify-start'>
         <h1 className='font-medium text-left text-2xl text-gray-700'>Company Applications</h1>
-        <div className='bg-white rounded-xl shadow-md w-full px-4 py-5'>
+        {companies && <div className='bg-white rounded-xl shadow-md w-full px-4 py-5 header-animate'>
             <h1 className='font-medium text-left text-xl text-gray-700'>Companies waiting for approval</h1>
             <table className='w-full mt-5'>
                 <thead>
@@ -54,7 +54,7 @@ function NewRegisteredCompanies() {
                     })}
                 </tbody>
             </table>
-        </div>
+        </div>}
     </div>
   )
 }
