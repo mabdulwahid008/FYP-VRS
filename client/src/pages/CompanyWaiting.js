@@ -1,16 +1,22 @@
-import { useDisconnect } from '@thirdweb-dev/react'
-import React, { useContext } from 'react'
+import { useAddress, useDisconnect } from '@thirdweb-dev/react'
+import React, { useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Context } from '../state/Provider'
 
 function CompanyWaiting() {
     const { pendingCompany } = useContext(Context)
     const disconnect = useDisconnect()
+    const address = useAddress()
     const navigate = useNavigate()
     const goBack = () => {
         disconnect()
         navigate('/company')
     }
+
+    useEffect(()=>{
+      if(!address)
+        navigate('/company')
+    }, [])
 
   return (
     <div className='bg-[#E5E5E5] h-screen w-full flex justify-center items-center'>

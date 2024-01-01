@@ -1,6 +1,7 @@
 import { useAddress, useContract, useDisconnect } from '@thirdweb-dev/react'
 import React, { createContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { COMPANY_ABI, COMPANY_ADDRESS, GOV_ABI, GOV_ADDRESS } from '../constants'
 
 export const Context = createContext()
@@ -18,9 +19,9 @@ function Provider(props) {
   const [loadingPage, setLoadingPage] = useState(false)
 
   const isCompanyRegistered = async() => {
-    const events = await companyContract?.contract?.events.getAllEvents({
-      eventName: "Register",
-    })
+    const events = await companyContract?.contract?.events.getAllEvents()
+    console.log(events);
+    console.log(address);
     const company = events?.filter((e) => e.data.account.toLowerCase() === address.toLowerCase())
     if(company && company?.length !== 0){
       setPendingCompany(company[0].data.name);
@@ -55,7 +56,8 @@ function Provider(props) {
       if(check)
         navigate('/government/dashboard')
       else{
-        // disonnect()
+        disonnect()
+        toast.error('Not Authorized.')
         navigate('/government')
       }
     }

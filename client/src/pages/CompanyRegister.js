@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { IoArrowBack } from "react-icons/io5";
-import { useContract, useContractWrite, useDisconnect } from '@thirdweb-dev/react'
+import { useAddress, useContract, useContractWrite, useDisconnect } from '@thirdweb-dev/react'
 import { useNavigate } from 'react-router-dom'
 import { uploadToIPFS } from '../utills';
 import { COMPANY_ABI, COMPANY_ADDRESS } from '../constants';
@@ -12,6 +12,7 @@ import { COMPANY_ABI, COMPANY_ADDRESS } from '../constants';
 function CompanyRegister() {
     const disconnect = useDisconnect()
     const navigate = useNavigate()
+    const address = useAddress()
     const [companyData, setCompanyData] = useState()
     const [loading, setLoading] = useState(false)
 
@@ -39,6 +40,12 @@ function CompanyRegister() {
         }
         setLoading(false)
     }
+
+    useEffect(()=>{
+        if(!address)
+          navigate('/company')
+      }, [])
+
   return (
     <div className='bg-[#E5E5E5] h-screen w-full flex justify-center items-center'>
       <div className='flex justify-center items-end w-[80%] bg-white rounded-xl shadow-lg pr-[40px] py-[40px] gap-10 header-animate'>\
