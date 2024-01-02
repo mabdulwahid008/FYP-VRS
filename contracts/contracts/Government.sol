@@ -8,6 +8,7 @@ contract Government{
 
     constructor(address _admin){
         admin = _admin;
+        authorized[_admin] = true;
     }
 
     modifier onlyAdmin(){

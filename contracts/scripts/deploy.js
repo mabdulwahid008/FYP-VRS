@@ -2,7 +2,8 @@ const { ethers } = require("hardhat");
 
 async function main() {
 
-  const admin = '0xA785b969469D1A5e752E82d39d69668F5A327e6D'
+  const admin = '0x35111A4004091A20818012926A405eDF24660B82'
+  // const admin = '0xA785b969469D1A5e752E82d39d69668F5A327e6D'
 
   const governmentContract = await ethers.deployContract("Government", [admin]);
   const govReceipt = await governmentContract.waitForDeployment();
