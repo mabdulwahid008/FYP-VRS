@@ -63,7 +63,7 @@ function Provider(props) {
       }
     }
     else{
-      navigate('/dashboard')
+      navigate('/my-vehicles')
     }
   }
 

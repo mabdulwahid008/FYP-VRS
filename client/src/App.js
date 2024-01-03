@@ -8,17 +8,23 @@ import CompanyWaiting from './pages/CompanyWaiting';
 import Government from './layout/Government';
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import User from './layout/User';
+import Company from './layout/Company';
 
 function App() {
   return (
     <Provider>
       <Routes>
-        <Route path='/' element={<Landing />} />
+        <Route path='/' element={<Outlet />}>
+          <Route index element={<Landing />} />
+          <Route path='*' element={<User/> } />
+        </Route>
         
         <Route path='company' element={<Outlet />}>
           <Route index element={<Landing />} />
           <Route path='register' element={<CompanyRegister />} />
           <Route path='waiting' element={<CompanyWaiting />} />
+          <Route path='*' element={<Company />} />
         </Route>
 
         <Route path='government' element={<Outlet />}>
