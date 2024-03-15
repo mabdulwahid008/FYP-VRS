@@ -43,7 +43,7 @@ function Provider(props) {
         if(registered){
           const approved = await isCompanyApproved()
           if(approved)
-            navigate('/company/dashboard')
+            navigate('/company/registered-vehicles')
           else
             navigate('/company/waiting')
         }
