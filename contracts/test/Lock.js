@@ -1,126 +1,125 @@
-const {
-  time,
-  loadFixture,
-} = require("@nomicfoundation/hardhat-toolbox/network-helpers");
-const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
+// Import the Hardhat Runtime Environment
+const { ethers } = require("hardhat");
+
+// Import the Chai assertion library
 const { expect } = require("chai");
 
-describe("Lock", function () {
-  // We define a fixture to reuse the same setup in every test.
-  // We use loadFixture to run this setup once, snapshot that state,
-  // and reset Hardhat Network to that snapshot in every test.
-  async function deployOneYearLockFixture() {
-    const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-    const ONE_GWEI = 1_000_000_000;
+let government;
+let company;
+let vrs;
+let gov_gov_admin;
+let user1;
+let user2;
 
-    const lockedAmount = ONE_GWEI;
-    const unlockTime = (await time.latest()) + ONE_YEAR_IN_SECS;
 
-    // Contracts are deployed using the first signer/account by default
-    const [owner, otherAccount] = await ethers.getSigners();
+async function deployGovernment(gov_admin) {
+  let Government = await ethers.getContractFactory("Government");
+  Government = await Government.deploy(gov_admin.address);
+  return  Government 
+}
 
-    const Lock = await ethers.getContractFactory("Lock");
-    const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+async function deployCompany() {
+  let Company = await ethers.getContractFactory("Company");
+  Company = await Company.deploy(government.target);
+  return  Company
+}
 
-    return { lock, unlockTime, lockedAmount, owner, otherAccount };
-  }
+async function deployVRS() {
+  let VRS = await ethers.getContractFactory("VRS");
+  VRS = await VRS.deploy(company.target, government.target);
+  return  VRS 
+}
 
-  describe("Deployment", function () {
-    it("Should set the right unlockTime", async function () {
-      const { lock, unlockTime } = await loadFixture(deployOneYearLockFixture);
+describe("Government Contract", function () {
 
-      expect(await lock.unlockTime()).to.equal(unlockTime);
-    });
 
-    it("Should set the right owner", async function () {
-      const { lock, owner } = await loadFixture(deployOneYearLockFixture);
+  before(async function () {
+    [gov_admin, user1, user2] = await ethers.getSigners();
+    government = await deployGovernment(gov_admin);
+    company = await deployCompany();
+    vrs = await deployVRS();
 
-      expect(await lock.owner()).to.equal(owner.address);
-    });
-
-    it("Should receive and store the funds to lock", async function () {
-      const { lock, lockedAmount } = await loadFixture(
-        deployOneYearLockFixture
-      );
-
-      expect(await ethers.provider.getBalance(lock.target)).to.equal(
-        lockedAmount
-      );
-    });
-
-    it("Should fail if the unlockTime is not in the future", async function () {
-      // We don't use the fixture here because we want a different deployment
-      const latestTime = await time.latest();
-      const Lock = await ethers.getContractFactory("Lock");
-      await expect(Lock.deploy(latestTime, { value: 1 })).to.be.revertedWith(
-        "Unlock time should be in the future"
-      );
-    });
   });
 
-  describe("Withdrawals", function () {
-    describe("Validations", function () {
-      it("Should revert with the right error if called too soon", async function () {
-        const { lock } = await loadFixture(deployOneYearLockFixture);
+  it("Should grant authorization to an account", async function () {
+    // Grant authorization to user1
+    await government.connect(gov_admin).grantAuthorization(user1.address);
 
-        await expect(lock.withdraw()).to.be.revertedWith(
-          "You can't withdraw yet"
-        );
-      });
+    // Check if user1 is authorized
+    expect(await government.isAuthorized(user1.address)).to.equal(true);
+  });
 
-      it("Should revert with the right error if called from another account", async function () {
-        const { lock, unlockTime, otherAccount } = await loadFixture(
-          deployOneYearLockFixture
-        );
+  it("Should revoke authorization from an account", async function () {
+    // Grant authorization to user1
+    await government.connect(gov_admin).grantAuthorization(user1.address);
 
-        // We can increase the time in Hardhat Network
-        await time.increaseTo(unlockTime);
+    // Revoke authorization from user1
+    await government.connect(gov_admin).revokeAuthorization(user1.address);
 
-        // We use lock.connect() to send a transaction from another account
-        await expect(lock.connect(otherAccount).withdraw()).to.be.revertedWith(
-          "You aren't the owner"
-        );
-      });
+    // Check if user1 is no longer authorized
+    expect(await government.isAuthorized(user1.address)).to.equal(false);
+  });
 
-      it("Shouldn't fail if the unlockTime has arrived and the owner calls it", async function () {
-        const { lock, unlockTime } = await loadFixture(
-          deployOneYearLockFixture
-        );
+  it("Should not allow unauthorized account to grant authorization", async function () {
+    // Try to grant authorization from user1 (not gov_admin)
+    await expect(government.connect(user1).grantAuthorization(user2.address)).to.be.revertedWith("VRS: Not Authorized");
 
-        // Transactions are sent using the first signer by default
-        await time.increaseTo(unlockTime);
+    // Check if user2 is still not authorized
+    expect(await government.isAuthorized(user2.address)).to.equal(false);
+  });
 
-        await expect(lock.withdraw()).not.to.be.reverted;
-      });
-    });
+  it("Should not allow unauthorized account to revoke authorization", async function () {
+    // Grant authorization to user1
+    await government.connect(gov_admin).grantAuthorization(user1.address);
 
-    describe("Events", function () {
-      it("Should emit an event on withdrawals", async function () {
-        const { lock, unlockTime, lockedAmount } = await loadFixture(
-          deployOneYearLockFixture
-        );
+    // Try to revoke authorization from user1 using user2 (not gov_admin)
+    await expect(government.connect(user2).revokeAuthorization(user1.address)).to.be.revertedWith("VRS: Not Authorized");
 
-        await time.increaseTo(unlockTime);
-
-        await expect(lock.withdraw())
-          .to.emit(lock, "Withdrawal")
-          .withArgs(lockedAmount, anyValue); // We accept any value as `when` arg
-      });
-    });
-
-    describe("Transfers", function () {
-      it("Should transfer the funds to the owner", async function () {
-        const { lock, unlockTime, lockedAmount, owner } = await loadFixture(
-          deployOneYearLockFixture
-        );
-
-        await time.increaseTo(unlockTime);
-
-        await expect(lock.withdraw()).to.changeEtherBalances(
-          [owner, lock],
-          [lockedAmount, -lockedAmount]
-        );
-      });
-    });
+    // Check if user1 is still authorized
+    expect(await government.isAuthorized(user1.address)).to.equal(true);
   });
 });
+
+
+
+describe("Company Contract", function () {
+
+  let owner;
+
+  before(async function () {
+    [owner] = await ethers.getSigners();
+  });
+
+  it("Should register a company", async function () {
+    const companyName = "Test Company";
+    const companyMetadata = "Some metadata"
+    
+    await company.connect(user1).registerCompany(companyName, companyMetadata);
+
+    await company.connect(gov_admin).approveCompany(0);
+    const companyData = await company.getCompany(0);
+    expect(companyData.account).to.equal(user1.address);
+    expect(companyData.name).to.equal(companyName);
+    expect(companyData.metadata).to.equal(companyMetadata);
+  });
+
+
+  it("Should revoke approval of a company by government", async function () {
+    await company.connect(user1).registerCompany("Test Company", "Some metadata");
+
+    await company.connect(gov_admin).revokeApproval(0);
+
+    const isApproved = await company.isCompanyApproved(user1.address);
+    expect(isApproved).to.be.false;
+  });
+
+  it("Should revoke approve of a company by government", async function () {
+    await company.connect(user1).registerCompany("Test Company", "Some metadata");
+    await company.connect(gov_admin).approveCompany(0);
+
+
+    const isApproved = await company.isCompanyApproved(user1.address);
+    expect(isApproved).to.be.true;
+  });
+
+})
