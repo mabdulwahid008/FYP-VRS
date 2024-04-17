@@ -65,9 +65,12 @@ contract VRS{
         Vehicle memory vehicle = vehicles[vehicleId];
 
         // case 1: if vehicle is not owned and msg.sender is not company then => return
-        require(vehicle.currentOwner == address(0) && company.isCompanyApproved(msg.sender), 'VRS: You are not the owner of this vehicle.');
         // case 2: if vehicle is owned and msg.sender is not the owner then => return
-        require(vehicle.currentOwner != address(0) && vehicle.currentOwner == msg.sender, 'VRS: You are not the owner of this vehicle.');
+        require(
+            (vehicle.currentOwner == address(0) && company.isCompanyApproved(msg.sender) 
+            || 
+            (vehicle.currentOwner != address(0) && vehicle.currentOwner == msg.sender)
+        ), 'VRS: You are not the owner of this vehicle.');
 
         require(_tillTime > block.timestamp, 'VRS: Time period is invalid.');
    
