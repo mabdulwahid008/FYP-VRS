@@ -1,20 +1,24 @@
-import { useContract, useContractRead } from '@thirdweb-dev/react'
+import { useAddress, useContract, useContractRead } from '@thirdweb-dev/react'
 import React, { useContext, useEffect, useState } from 'react'
 import { GoLinkExternal } from 'react-icons/go'
 import { VRS_ABI, VRS_ADDRESS } from '../constants'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Context } from '../state/Provider'
 import { uploadToIPFS } from '../utills';
+import CreateOffer from './CreateOffer'
 
 function RegisterNewVehicle() {
     const { setLoadingPage } = useContext(Context)
     const [vehicle, setVehicle] = useState({})
     const [loading, setLoading] = useState(false)
+    const [validForSeeling, setValidForSelling] = useState(false)
     const { contract } = useContract(VRS_ADDRESS, VRS_ABI)
     const { id } = useParams()
     const { data } = useContractRead(contract, 'companies', [id])
 
     const [vehicleData, setVehicleData] = useState({})
+
+    const nvaigate = useNavigate()
 
     const onChange = (e) => {
         setVehicleData({...vehicleData, [e.target.name]: e.target.value})
@@ -28,6 +32,7 @@ function RegisterNewVehicle() {
             const cid = await uploadToIPFS(vehicleData)
 
             await contract.call('registerNewVhecile', [cid, vehicleData.chassisnumber])
+            nvaigate(-1)
         } catch (error) {
             alert("error", error)
         }
@@ -52,9 +57,21 @@ function RegisterNewVehicle() {
         }
     }
 
+    const address = useAddress()
+
+    const isValidForseeling = async() => {
+        const vehicle = await contract.call('vehicles', [id])
+
+        if(vehicle.currentOwner === '0x0000000000000000000000000000000000000000' && vehicle.vehicleCompany === address)
+            setValidForSelling(true)
+        else if(vehicle.currentOwner === address)
+            setValidForSelling(true)
+    }
+
     useEffect(()=> {
-        if(id)
+        if(id){
             fetchData()
+        isValidForseeling()}
     }, [id])
     
     return (
@@ -69,36 +86,38 @@ function RegisterNewVehicle() {
                         <div className='flex justify-between items-start gap-3 w-full'>
                             <div className='flex flex-col gap-2 w-[50%]'>
                                 <label className='text-sm text-black font-semibold'>Vehicle Name</label>
-                                <input className='rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-300' name='name' value={vehicleData?.name} required onChange={onChange}/>
+                                <input className='rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-300' readOnly={id? true: false} name='name' value={vehicleData?.name} required onChange={onChange}/>
                             </div>
                             <div className='flex flex-col gap-2 w-[50%] relative'>
                                 <label className='text-sm text-black font-semibold'>Vehicle Color</label>
-                                <input className='rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-300' name='color' value={vehicleData?.color} required  onChange={onChange}/>
+                                <input className='rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-300' readOnly={id? true: false} name='color' value={vehicleData?.color} required  onChange={onChange}/>
                             </div>
                         </div>
                         <div className='flex justify-between items-start gap-3 w-full'>
                             <div className='flex flex-col gap-2 w-[50%]'>
                                 <label className='text-sm text-black font-semibold'>Body Type</label>
-                                <input className='rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-300' name='body_type' value={vehicleData?.body_type} required  onChange={onChange}/>
+                                <input className='rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-300' readOnly={id? true: false} name='body_type' value={vehicleData?.body_type} required  onChange={onChange}/>
                             </div>
                             <div className='flex flex-col gap-2 w-[50%]'>
                                 <label className='text-sm text-black font-semibold'>Chassis Number</label>
-                                <input className='rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-300' name='chassisnumber' value={vehicleData?.chassisnumber} required  onChange={onChange}/>
+                                <input className='rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-300' readOnly={id? true: false} name='chassisnumber' value={vehicleData?.chassisnumber} required  onChange={onChange}/>
                             </div>
                         </div>
                         <div className='flex justify-between items-start gap-3 w-full'>
                             <div className='flex flex-col gap-2 w-[50%]'>
                                 <label className='text-sm text-black font-semibold'>Model No</label>
-                                <input className='rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-300' name='modelno' value={vehicleData?.modelno} required  onChange={onChange}/>
+                                <input className='rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-300' readOnly={id? true: false} name='modelno' value={vehicleData?.modelno} required  onChange={onChange}/>
                             </div>
                             <div className='flex flex-col gap-2 w-[50%]'>
                                 <label className='text-sm text-black font-semibold'>Engine Number</label>
-                                <input className='rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-300' name='e_no' value={vehicleData?.e_no} required  onChange={onChange}/>
+                                <input className='rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-300' readOnly={id? true: false} name='e_no' value={vehicleData?.e_no} required  onChange={onChange}/>
                             </div>
                         </div>
-                        <button className='bg-black/75 rounded-md shadow-sm cursor-pointer py-2 px-10 text-white text-sm font-semibold w-[45%] transition-colors hover:bg-black/100 disabled:bg-red-300 disabled:cursor-wait' disabled={loading}>Register</button>
+                       {!id && <button className='bg-black/75 rounded-md shadow-sm cursor-pointer py-2 px-10 text-white text-sm font-semibold w-[45%] transition-colors hover:bg-black/100 disabled:bg-red-300 disabled:cursor-wait' disabled={loading}>Register</button>}
                     </form>
                 </div>
+
+                {validForSeeling && <CreateOffer id={id}/>}
             </div>}
         </>
     )

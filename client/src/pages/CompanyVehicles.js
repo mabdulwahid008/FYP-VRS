@@ -14,14 +14,22 @@ function CompanyVehicles() {
 
     const fetchvehicles = async () => {
         let events = await contract?.events.getAllEvents()
-        console.log(events);
+        console.log("events", events);
         events = events?.filter((e) => e.eventName === 'VehicleRegistered')
         let registered = []
         for (let i = 0; i < events?.length; i++) {
             if (events[i].data.company === address) {
                 const vehicle = await contract?.call('vehicles', [events[i]?.data.vehicleId])
-                vehicle.vehicleId = ethers.utils.formatEther(vehicle.vehicleId)
-                registered.push(vehicle)
+                registered.push({
+                    vehicleId: parseInt(ethers.utils.formatEther(events[i]?.data.vehicleId)),
+                    currentOwner: vehicle.currentOwner,         
+                    currentOwnerMetadata: vehicle.currentOwnerMetadata,
+                    vehicleChassisNumber: vehicle.vehicleChassisNumber,
+                    vehicleCompany: vehicle.vehicleCompany,
+                    vehicleMetadata : vehicle.vehicleMetadata,             
+                    vehicleNumber: vehicle.vehicleNumber,
+
+                })
             }
         }
 
@@ -40,8 +48,8 @@ function CompanyVehicles() {
                 <h1 className='font-medium text-left text-2xl text-gray-700'>Registered Vehicles</h1>
                 <div className='bg-white rounded-xl shadow-md w-full px-4 py-5 header-animate'>
                     <div className='flex justify-between items-center'>
-                    <h1 className='font-medium text-left text-xl text-gray-700'>Vehicles</h1>
-                    <Link to='/company/registered-vehicles/new' className='bg-black/75 rounded-md shadow-sm cursor-pointer py-2 px-10 text-white text-sm font-semibold  transition-colors hover:bg-black/100 disabled:bg-red-300 disabled:cursor-wait'>New Vehicle</Link>
+                        <h1 className='font-medium text-left text-xl text-gray-700'>Vehicles</h1>
+                        <Link to='/company/registered-vehicles/new' className='bg-black/75 rounded-md shadow-sm cursor-pointer py-2 px-10 text-white text-sm font-semibold  transition-colors hover:bg-black/100 disabled:bg-red-300 disabled:cursor-wait'>New Vehicle</Link>
                     </div>
                     {vehicles?.length === 0 && <p className='text-gray-700 mt-3'>No data found.</p>}
                     {vehicles?.length !== 0 && <table className='w-full mt-5'>
