@@ -53,7 +53,7 @@ function Provider(props) {
 
     else if(window.location.pathname.startsWith('/government')){
       const check = await govContract?.contract?.call('isAuthorized', [address])
-      // const check = await govContract?.contract?.call('grantAuthorization', ['0xA785b969469D1A5e752E82d39d69668F5A327e6D'])
+      // const check = await govContract?.contract?.call('grantAuthorization', ['0x35111A4004091A20818012926A405eDF24660B82'])
       if(check)
         navigate('/government/dashboard')
       else{

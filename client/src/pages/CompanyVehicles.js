@@ -4,6 +4,7 @@ import { VRS_ABI, VRS_ADDRESS } from '../constants'
 import { minifyAddress } from '../utills'
 import { Link } from 'react-router-dom'
 import { Context } from '../state/Provider';
+import { ethers } from 'ethers'
 
 function CompanyVehicles() {
     const { setLoadingPage } = useContext(Context)
@@ -13,14 +14,18 @@ function CompanyVehicles() {
 
     const fetchvehicles = async () => {
         let events = await contract?.events.getAllEvents()
-        events = events.filter((e) => e.eventName === 'VehicleRegistered')
+        console.log(events);
+        events = events?.filter((e) => e.eventName === 'VehicleRegistered')
         let registered = []
         for (let i = 0; i < events?.length; i++) {
             if (events[i].data.company === address) {
                 const vehicle = await contract?.call('vehicles', [events[i]?.data.vehicleId])
+                vehicle.vehicleId = ethers.utils.formatEther(vehicle.vehicleId)
                 registered.push(vehicle)
             }
         }
+
+        console.log(registered);
         setVehicles(registered)
         setLoadingPage(false)
     }
@@ -43,9 +48,8 @@ function CompanyVehicles() {
                         <thead>
                             <tr className='border-b-2 border-gray-300'>
                                 <th className='text-gray-900 font-medium w-[50px] text-left py-2'>#</th>
-                                <th className='text-gray-900 font-medium w-[30%] text-left'>Company Name</th>
-                                <th className='text-gray-900 font-medium w-[30%] text-left'>Company Address</th>
-                                <th className='text-gray-900 font-medium text-left'>Registered Date</th>
+                                <th className='text-gray-900 font-medium w-[30%] text-left'>Chassis Number</th>
+                                <th className='text-gray-900 font-medium w-[30%] text-left'>Current Owner</th>
                                 <th className='text-gray-900 font-medium text-left'>Details</th>
                             </tr>
                         </thead>
@@ -53,10 +57,9 @@ function CompanyVehicles() {
                             {vehicles?.map((comp, index) => {
                                 return <tr className='border-b-[1px] border-gray-200' key={index}>
                                     <td className='text-gray-700 font-normal w-[50px] text-left py-2 text-sm'>{index + 1}</td>
-                                    <td className='text-gray-700 font-normal w-[30%] text-left text-sm'>{comp.name}</td>
-                                    <td className='text-gray-700 font-normal w-[30%] text-left text-sm'>{minifyAddress(comp.account)}</td>
-                                    <td className='text-gray-700 font-normal text-left text-sm'>{new Date(comp.timestamp * 1000).toDateString()}</td>
-                                    <td className='text-gray-700 font-normal text-left text-sm'><Link to={comp.index.toString()}>Details</Link></td>
+                                    <td className='text-gray-700 font-normal w-[30%] text-left text-sm'>{comp.vehicleChassisNumber}</td>
+                                    <td className='text-gray-700 font-normal w-[30%] text-left text-sm'>{minifyAddress(comp.currentOwner)}</td>
+                                    <td className='text-gray-700 font-normal w-[30%] text-left text-sm'><Link to={`/company/registered-vehicles/${comp.vehicleId}`}> Detail </Link></td>
                                 </tr>
                             })}
                         </tbody>

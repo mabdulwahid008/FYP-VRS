@@ -45,6 +45,7 @@ function Company() {
             <Route path='registered-vehicles' element={<Outlet />}>
                 <Route index element={<CompanyVehicles />} />
                 <Route path='new' element={<RegisterNewVehicle />} />
+                <Route path=':id' element={<RegisterNewVehicle />} />
             </Route>
             <Route path='approved-companies' element={<Outlet />}>
                 <Route index element={<ApprovedComapnies />} />
