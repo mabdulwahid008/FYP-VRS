@@ -1,8 +1,9 @@
 import { useContract } from '@thirdweb-dev/react'
 import React, { useState } from 'react'
 import { VRS_ABI, VRS_ADDRESS } from '../constants'
+import { ethers } from 'ethers'
 
-function CreateOffer({ id }) {
+function CreateOffer({ id, setRefresh }) {
 
     const [offer, setOffer] = useState()
     const [loading, setLoading] = useState()
@@ -10,14 +11,19 @@ function CreateOffer({ id }) {
     const { contract } = useContract(VRS_ADDRESS, VRS_ABI)
 
     const onChange = (e) => {
-        setOffer({...offer, [e.target.name]: e.target.value})
+        setOffer({ ...offer, [e.target.name]: e.target.value })
+        console.log(offer);
     }
 
-    const onSubmit = async(e) => {
+    const onSubmit = async (e) => {
         e.preventDefault()
         setLoading(true)
         try {
-            await contract.call('createOffer', [id, offer.buyer, offer.price, offer.time])
+            const unixTime = new Date(offer.time).getTime() / 1000;
+            const priceInWei = ethers.utils.parseEther(offer.price); // Convert Ether to Wei
+            const priceUint256 = ethers.BigNumber.from(priceInWei)
+            await contract.call('createOffer', [id, offer.buyer, priceUint256, unixTime])
+            setRefresh(s =>!s)
         } catch (error) {
             console.log(error);
         }
@@ -30,15 +36,15 @@ function CreateOffer({ id }) {
                 <div className='flex justify-between items-start gap-3 w-full'>
                     <div className='flex flex-col gap-2 w-[50%]'>
                         <label className='text-sm text-black font-semibold'>Sell to</label>
-                        <input className='rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-300' type='text' name='buyer' value={''} required onChange={onChange} />
+                        <input className='rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-300' type='text' name='buyer' defaultValue={''} required onChange={onChange} />
                     </div>
                     <div className='flex flex-col gap-2 w-[50%] relative'>
                         <label className='text-sm text-black font-semibold'>Price</label>
-                        <input className='rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-300' type='number' name='price' value={''} required onChange={onChange} />
+                        <input className='rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-300' type='text' name='price' defaultValue={''} required onChange={onChange} />
                     </div>
                     <div className='flex flex-col gap-2 w-[50%] relative'>
                         <label className='text-sm text-black font-semibold'>Till</label>
-                        <input className='rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-300' type='date' name='time' value={''} required onChange={onChange} />
+                        <input className='rounded-md outline-none px-3 py-2 text-sm border-[1px] border-gray-300' type='date' name='time' defaultValue={''} required onChange={onChange} />
                     </div>
                 </div>
                 <button className='bg-black/75 rounded-md shadow-sm cursor-pointer py-2 px-10 text-white text-sm font-semibold w-[45%] transition-colors hover:bg-black/100 disabled:bg-red-300 disabled:cursor-wait' disabled={loading}>Create Offer</button>

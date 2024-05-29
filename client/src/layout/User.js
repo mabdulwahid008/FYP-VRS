@@ -11,6 +11,8 @@ import CompanyDetails from '../pages/CompanyDetails';
 import Loading from '../pages/Loading';
 import { Context } from '../state/Provider';
 import ApprovedComapnies from '../pages/ApprovedComapnies';
+import MyOffers from '../pages/MyOffers';
+import RegisterNewVehicle from '../pages/RegisterNewVehicle';
 
 function User() {
   const { loadingPage } = useContext(Context)
@@ -39,7 +41,8 @@ function User() {
       <div className='ml-[20%] w-[80%]'>
         <div className='px-10 py-8 h-screen'>
           <Routes>
-            <Route path='*' element={<div>Here</div>}/>
+            <Route path='offers' element={<MyOffers />}/>
+            <Route path='vehicle/:id' element={<RegisterNewVehicle />}/>
            
           </Routes>
         </div>

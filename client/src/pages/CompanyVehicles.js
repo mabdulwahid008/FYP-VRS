@@ -14,7 +14,6 @@ function CompanyVehicles() {
 
     const fetchvehicles = async () => {
         let events = await contract?.events.getAllEvents()
-        console.log("events", events);
         events = events?.filter((e) => e.eventName === 'VehicleRegistered')
         let registered = []
         for (let i = 0; i < events?.length; i++) {
